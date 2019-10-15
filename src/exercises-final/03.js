@@ -3,48 +3,46 @@
 import React from 'react'
 import {Switch} from '../switch'
 
-const ToggleContext = React.createContext({
+// 🐨 create a ToggleContext with React.createContext here
+const ToogleContext = React.createContext({
   on: false,
-  toggle: () => {},
-})
-
+  toogle: () => {}
+});
 class Toggle extends React.Component {
-  static On = ({children}) => (
-    <ToggleContext.Consumer>
-      {({on}) => (on ? children : null)}
-    </ToggleContext.Consumer>
+  // 🐨 each of these compound components will need to be changed to use
+  // ToggleContext.Consumer and rather than getting `on` and `toggle`
+  // from props, it'll get it from the ToggleContext.Consumer value.
+  static On = ({on, children}) => <ToogleContext.Consumer>{(on ? children : null)}</ToogleContext.Consumer>
+  static Off = ({on, children}) =><ToogleContext.Consumer>{(on ? null : children)}</ToogleContext.Consumer> 
+  static Button = ({on, toggle, ...props}) => (
+    <ToogleContext.Consumer>{<Switch on={on} onClick={toggle} {...props} />} </ToogleContext.Consumer>
   )
-  static Off = ({children}) => (
-    <ToggleContext.Consumer>
-      {({on}) => (on ? null : children)}
-    </ToggleContext.Consumer>
-  )
-  static Button = props => (
-    <ToggleContext.Consumer>
-      {({on, toggle}) => (
-        <Switch on={on} onClick={toggle} {...props} />
-      )}
-    </ToggleContext.Consumer>
-  )
-  // 💰 The reason we had to move `toggle` above `state` is because
-  // in our `state` initialization we're _using_ `this.toggle`. So
-  // if `this.toggle` is not defined before state is initialized, then
-  // `state.toggle` will be undefined.
+  // Because we'll be passing state into context, we need to 🐨 add the
+  // toggle function to state.
+  // 💰 You'll need to move this below the `toggle` function. See
+  // if you can figure out why :)
   toggle = () =>
     this.setState(
       ({on}) => ({on: !on}),
       () => this.props.onToggle(this.state.on),
     )
-  state = {on: false, toggle: this.toggle}
+    state = {on: false, toogle: this.toogle}
   render() {
-    return (
-      <ToggleContext.Provider value={this.state}>
-        {this.props.children}
-      </ToggleContext.Provider>
-    )
+    // Because this.props.children is _immediate_ children only, we need
+    // to 🐨 remove this map function and render our context provider with
+    // this.props.children as the children of the provider. Then we'll
+    // expose the on state and toggle method as properties in the context
+    // value (the value prop). 
+
+    return <ToogleContext.Provider value = {this.state}>
+      {this.props.children}
+    </ToogleContext.Provider>
   }
 }
 
+// Don't make changes to the Usage component. It's here to show you how your
+// component is intended to be used and is used in the tests.
+// You can make all the tests pass by updating the Toggle component.
 function Usage({
   onToggle = (...args) => console.log('onToggle', ...args),
 }) {
