@@ -23,6 +23,10 @@ class Toggle extends React.Component {
       // 🐨 Add a `togglerProps` object that has an `aria-expanded` (should
       // be set to the value of the `on` state), and an `onClick` assigned
       // to the toggle function.
+      toogleProps:{
+        'aria-expanded': this.state.on,
+        oClick: this.toggle,
+      }
     }
   }
   render() {
@@ -42,7 +46,7 @@ function Usage({
         <div>
           <Switch on={on} {...togglerProps} />
           <hr />
-          <button aria-label="custom-button" {...togglerProps}>
+          <button aria-label="custom-button" {...togglerProps} >
             {on ? 'on' : 'off'}
           </button>
         </div>
